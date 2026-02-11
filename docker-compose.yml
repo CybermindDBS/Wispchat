@@ -22,6 +22,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATA_MONGODB_URI: mongodb://root:secret@wispchat-mongodb:27017/wispchat?authSource=admin
+      WISPCHAT_FRONTEND_URL: http://localhost
     volumes:
       - ./user-uploads/Files:/app/Files
 

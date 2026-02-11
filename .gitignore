@@ -58,6 +58,6 @@ dist-ssr
 *.sln
 *.sw?
 
-user-uploads
+user-uploads/
 login-registry.cmd
 *.env
