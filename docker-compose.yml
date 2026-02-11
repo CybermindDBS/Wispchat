@@ -1,0 +1,37 @@
+
+services:
+  wispchat-mongodb:
+    image: mongo:7
+    container_name: wispchat-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_INITDB_DATABASE: wispchat
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  wispchat-backend:
+    build: ./wispchat-spring
+    container_name: wispchat-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - wispchat-mongodb
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATA_MONGODB_URI: mongodb://root:secret@wispchat-mongodb:27017/wispchat?authSource=admin
+    volumes:
+      - ./user-uploads/Files:/app/Files
+
+  wispchat-frontend:
+    build: ./wispchat-react
+    container_name: wispchat-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - wispchat-backend
+
+volumes:
+  mongo-data:

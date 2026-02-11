@@ -1,0 +1,32 @@
+* {
+    box-sizing: border-box;
+}
+
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(158, 158, 158, 0) transparent;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Show only thumb on interaction */
+*:hover {
+    scrollbar-color: #9e9e9e transparent;
+}
+
+*:hover::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(158, 158, 158, 0.8);
+    border-radius: 8px;
+}
+
+*:hover::-webkit-scrollbar-track {
+    background: transparent;
+}
