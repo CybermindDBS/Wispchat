@@ -13,7 +13,7 @@ services:
       - mongo-data:/data/db
 
   wispchat-backend:
-    # image: ghcr.io/cyberminddbs/wispchat-frontend:latest
+    # image: ghcr.io/cyberminddbs/wispchat-backend:latest
     build: ./wispchat-spring
     container_name: wispchat-backend
     ports:
@@ -29,7 +29,7 @@ services:
 
   wispchat-frontend:
     build: ./wispchat-react
-    # image: ghcr.io/cyberminddbs/wispchat-backend:latest
+    # image: ghcr.io/cyberminddbs/wispchat-frontend:latest
     container_name: wispchat-frontend
     ports:
       - "80:80"
