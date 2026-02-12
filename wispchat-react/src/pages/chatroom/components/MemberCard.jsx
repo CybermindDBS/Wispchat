@@ -2,6 +2,7 @@ import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import {useState} from "react";
 import Popover from '@mui/material/Popover';
+import palette from '../../theme/palette';
 
 export default function MemberCard({id, name, status}) {
 
