@@ -21,7 +21,7 @@ export default function MemberCard({id, name, status}) {
         display: 'flex', flexDirection: 'column', userSelect: 'none'
     }}>
         <Typography variant="body1" noWrap onClick={handleClick}>{name}</Typography>
-        <Typography variant="body2" color="grey" noWrap onClick={handleClick}>{status || `#${id}`}</Typography>
+        <Typography variant="body2" color={status ? palette.secondary.main : "grey"} noWrap onClick={handleClick}>{status || `#${id}`}</Typography>
         <Popover
             id={open ? 'simple-popover' : undefined}
             open={open}
