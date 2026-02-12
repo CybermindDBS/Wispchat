@@ -59,5 +59,6 @@ dist-ssr
 *.sw?
 
 user-uploads/
+/wispchat-spring/Files
 login-registry.cmd
 *.env
