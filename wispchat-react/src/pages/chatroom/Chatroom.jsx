@@ -24,6 +24,7 @@ import {FRONTEND_BASE_URL} from "../../constants/config.js";
 import {isAtLeastNextDayLocal} from "../../utils/dateUtils.js";
 import Event from "./components/Event.jsx";
 import AttachFileButton from "./components/AttachFileButton.jsx";
+import capitalizeWords from "../../utils/capitalizeWords.js";
 
 function Chatroom() {
 
@@ -204,7 +205,7 @@ function Chatroom() {
                     userSelect: 'none',
                     padding: '10px',
                 }}>
-                    <Typography>Group name</Typography>
+                    <Typography>{capitalizeWords(chatroom.name)}</Typography>
                     <IconButton onClick={handleOpenGroupMenu}><ExpandMoreIcon fontSize="small"/></IconButton>
                 </Box>
                 <Divider/>
