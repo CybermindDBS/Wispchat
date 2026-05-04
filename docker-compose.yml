@@ -11,10 +11,25 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+  
+  wispchat-redis:
+    image: redis/redis-stack:latest
+    container_name: wispchat-redis
+    ports:
+      - "6379:6379"
+      - "8001:8001"   # RedisInsight Dashboard
+    volumes:
+      - redis-data:/data
+    environment:
+      - REDIS_ARGS=--save 60 1
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 
   wispchat-backend:
-    # image: ghcr.io/cyberminddbs/wispchat-backend:latest
     build: ./wispchat-spring
+    # image: ghcr.io/cyberminddbs/wispchat-backend:latest
     container_name: wispchat-backend
     ports:
       - "8080:8080"
@@ -23,7 +38,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATA_MONGODB_URI: mongodb://root:secret@wispchat-mongodb:27017/wispchat?authSource=admin
-      WISPCHAT_FRONTEND_URL: http://localhost
+      WISPCHAT_FRONTEND_URL: http://localhost:81
     volumes:
       - ./user-uploads/Files:/app/Files
 
@@ -32,9 +47,10 @@ services:
     # image: ghcr.io/cyberminddbs/wispchat-frontend:latest
     container_name: wispchat-frontend
     ports:
-      - "80:80"
+      - "81:80"
     depends_on:
       - wispchat-backend
-
+      
 volumes:
   mongo-data:
+  redis-data:

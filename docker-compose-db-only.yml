@@ -1,0 +1,32 @@
+
+services:
+  wispchat-mongodb:
+    image: mongo:7
+    container_name: wispchat-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_INITDB_DATABASE: wispchat
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/
+  
+  wispchat-redis:
+    image: redis/redis-stack:latest
+    container_name: wispchat-redis
+    ports:
+      - "6379:6379"
+      - "8001:8001"   # RedisInsight Dashboard
+    volumes:
+      - redis-data:/data
+    environment:
+      - REDIS_ARGS=--save 60 1
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+      
+volumes:
+  mongo-data:
+  redis-data:
