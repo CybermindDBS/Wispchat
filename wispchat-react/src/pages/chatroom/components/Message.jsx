@@ -5,6 +5,10 @@ import * as React from "react";
 import {useCallback} from "react";
 import {formatLocalTime24} from "../../../utils/dateUtils.js";
 import {AttachmentCard} from "./index.js";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
 
 const Message = React.memo(function Message({
                                                 id,
@@ -53,9 +57,15 @@ const Message = React.memo(function Message({
         </Box>}
 
         {contentType === "TEXT" && (<Box>
-            <Typography variant="h6" sx={{
+            <Typography variant="body1" sx={{
                 whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-            }}>{content}</Typography>
+                fontSize: '1.1rem'
+            }}>
+                <ReactMarkdown
+                    remarkPlugins={[remarkMath, remarkGfm]}
+                    rehypePlugins={[rehypeKatex]}
+                >{content}</ReactMarkdown>
+            </Typography>
         </Box>)}
         {contentType === "FILE" && <AttachmentCard content={content} chatroomId={chatroomId}/>}
 

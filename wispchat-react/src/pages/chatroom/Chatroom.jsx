@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useCallback, useLayoutEffect, useMemo, useRef} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef} from 'react';
 import Typography from '@mui/material/Typography'
 import {useNavigate, useParams} from "react-router-dom";
 import Container from "@mui/material/Container";
@@ -64,6 +64,8 @@ function Chatroom() {
     const messageSectionRef = React.useRef(null);
 
     const messageSectionBottomRef = React.useRef(null);
+
+    const wasNearBottomRef = useRef(true)
 
     const typingEventTimeout = useRef(false)
 
@@ -138,13 +140,24 @@ function Chatroom() {
         setSendMessageContent("")
     }
 
+    useEffect(() => {
+        const messageSectionEl = messageSectionRef.current
+        if (!messageSectionEl) return;
+
+        const handleScroll = () => {
+            const distance = messageSectionEl.scrollHeight - (messageSectionEl.scrollTop + messageSectionEl.clientHeight);
+            wasNearBottomRef.current = distance < messageSectionEl.clientHeight * 0.5;
+        }
+        messageSectionEl.addEventListener("scroll", handleScroll)
+        return () => messageSectionEl.removeEventListener("scroll", handleScroll)
+    }, [initialAnimationComplete])
+
     useLayoutEffect(() => {
         const messageSectionEl = messageSectionRef.current
         const messageSectionBottomEl = messageSectionBottomRef.current
         if (!messageSectionEl || !messageSectionBottomEl) return;
-        const isNearBottom = messageSectionEl.scrollHeight - (messageSectionEl.scrollTop + messageSectionEl.clientHeight) < 600
-        if (isNearBottom) messageSectionBottomEl.scrollIntoView({behavior: "smooth"})
 
+        if (wasNearBottomRef.current) messageSectionBottomEl.scrollIntoView({behavior: "smooth"})
     }, [messages, initialAnimationComplete]);
 
     if (chatroomLoading || messagesLoading) return <CircularLoader/>
@@ -251,7 +264,7 @@ function Chatroom() {
 
                 <Box
                     sx={{
-                        display: 'flex', flexDirection: 'column', flexGrow: 1, marginY: '25px',
+                        display: 'flex', flexDirection: 'column', flexGrow: 1, marginY: '25px', minHeight: 0
                     }}>
 
 
@@ -263,6 +276,7 @@ function Chatroom() {
                             flexGrow: "1",
                             overflowY: 'auto',
                             overflowX: 'hidden',
+                            minHeight: 0
                         }}
                     >
                         {!chatroom.isMember && <JoinMessage/>}

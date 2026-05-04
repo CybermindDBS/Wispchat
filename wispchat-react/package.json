@@ -17,10 +17,15 @@
     "@stomp/stompjs": "^7.3.0",
     "axios": "^1.13.4",
     "framer-motion": "^12.29.2",
+    "katex": "^0.16.45",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.11.0",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
     "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
