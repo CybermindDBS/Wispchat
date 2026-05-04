@@ -1,5 +1,6 @@
 package com.cdev.wispchat.service;
 
+import com.cdev.wispchat.ai.service.AIOrchestratorService;
 import com.cdev.wispchat.model.dto.EventDTO;
 import com.cdev.wispchat.model.entity.Message;
 import com.cdev.wispchat.model.entity.User;
@@ -14,20 +15,23 @@ import java.time.Instant;
 
 @Service
 public class ChatEventService {
+    private static final String COMMAND_ASK_AI = "@ai";
     ChatroomService chatroomService;
     MessageService messageService;
     UserService userService;
     SimpMessagingTemplate messagingTemplate;
     MessageMapper messageMapper;
     CurrentUserProvider currentUserProvider;
+    AIOrchestratorService aiOrchestratorService;
 
-    public ChatEventService(MessageService messageService, ChatroomService chatroomService, UserService userService, MessageMapper messageMapper, CurrentUserProvider currentUserProvider, SimpMessagingTemplate messagingTemplate) {
+    public ChatEventService(MessageService messageService, ChatroomService chatroomService, UserService userService, MessageMapper messageMapper, CurrentUserProvider currentUserProvider, SimpMessagingTemplate messagingTemplate, AIOrchestratorService aiOrchestratorService) {
         this.messageService = messageService;
         this.chatroomService = chatroomService;
         this.userService = userService;
         this.messageMapper = messageMapper;
         this.messagingTemplate = messagingTemplate;
         this.currentUserProvider = currentUserProvider;
+        this.aiOrchestratorService = aiOrchestratorService;
     }
 
     public void sendMessage(EventDTO eventDTO, User user) {
@@ -40,6 +44,9 @@ public class ChatEventService {
         Message message = messageService.save(messageMapper.toEntity(eventDTO));
         eventDTO.setId(message.getMessageId());
         messagingTemplate.convertAndSend("/topic/chatroom/" + eventDTO.getChatroomId(), eventDTO);
+        if (message.getContent().startsWith(COMMAND_ASK_AI)) {
+            aiOrchestratorService.registerRequest(eventDTO);
+        }
     }
 
     public void deleteMessage(EventDTO eventDTO, User user) {

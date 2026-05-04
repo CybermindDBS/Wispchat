@@ -6,11 +6,13 @@ import com.cdev.wispchat.model.entity.User;
 import com.cdev.wispchat.model.mapper.MessageMapper;
 import com.cdev.wispchat.repository.MessageRepository;
 import com.cdev.wispchat.security.CurrentUserProvider;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +50,17 @@ public class MessageService {
         message.setDeleted(true);
         message.setContent("");
         save(message);
+    }
+
+    @Tool(description = "Get recent messages from a chatroom by chatroom ID")
+    public List<EventDTO> getRecentMessagesByChatroomId(String chatroomId) {
+        List<Message> messages = msgRepository.getAllByChatroomId(chatroomId);
+        messages = messages.stream().filter((msg) -> !msg.getSenderId().equals("wispchat_ai")).sorted(Comparator.comparing(Message::getTimestamp).reversed()).limit(30).toList();
+        Set<String> memberIds = messages.stream().map(Message::getSenderId).collect(Collectors.toSet());
+        Map<String, User> userDetailsMap = userService.getUserDetails(memberIds);
+        List<EventDTO> messageDTOS = messages.stream().map(messageMapper::toDto).toList();
+        messageDTOS.forEach(messageDTO -> messageDTO.setSenderName(userDetailsMap.get(messageDTO.getSenderId()).getName()));
+        return messageDTOS;
     }
 
     public List<EventDTO> getAllByChatroomId(String chatroomId) {

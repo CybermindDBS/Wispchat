@@ -72,7 +72,7 @@ public class ChatroomController {
 
     @GetMapping("/{id}/get")
     public ResponseEntity<ChatroomDTO> get(@PathVariable String id) {
-        return ResponseEntity.ok().body(chatroomService.get(id));
+        return ResponseEntity.ok().body(chatroomService.getChatroomMetaData(id));
     }
 
     @GetMapping("/{id}/isMember")

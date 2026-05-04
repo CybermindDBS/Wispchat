@@ -5,6 +5,7 @@ import com.cdev.wispchat.model.entity.User;
 import com.cdev.wispchat.model.mapper.UserMapper;
 import com.cdev.wispchat.repository.UserRepository;
 import com.cdev.wispchat.security.CurrentUserProvider;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,12 @@ public class UserService {
     }
 
     public UserDTO getUserDetails(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The given user ID does not exists"));
+        return userMapper.toDto(user);
+    }
+
+    @Tool(description = "Get username from user ID")
+    public UserDTO getUsername(String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The given user ID does not exists"));
         return userMapper.toDto(user);
     }

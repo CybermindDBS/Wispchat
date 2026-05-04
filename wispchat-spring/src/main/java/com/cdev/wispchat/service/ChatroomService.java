@@ -12,6 +12,7 @@ import com.cdev.wispchat.model.mapper.MemberMapper;
 import com.cdev.wispchat.model.mapper.MessageMapper;
 import com.cdev.wispchat.repository.ChatroomRepository;
 import com.cdev.wispchat.security.CurrentUserProvider;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,7 @@ public class ChatroomService {
         chatroom.setName(chatroomName);
         chatroom.setOwnerId(authenticatedUser.getUserId());
         chatroom.getMembers().add(new Member(authenticatedUser.getUserId(), true));
+        chatroom.getMembers().add(new Member("wispchat_ai", false));
         return chatroomRepository.save(chatroom);
     }
 
@@ -131,7 +133,38 @@ public class ChatroomService {
         return chatroomDTOS;
     }
 
-    public ChatroomDTO get(String chatroomId) {
+    @Tool(description = "Get all chatrooms created by a specific user by user ID")
+    public List<ChatroomDTO> listChatroomsByOwnerId(String userId) {
+        List<Chatroom> chatrooms = chatroomRepository.findChatroomsByMembersMemberId(userId);
+        List<ChatroomDTO> chatroomDTOS = chatrooms.stream().map(chatroomMapper::toDto).toList();
+        Set<String> memberIds = chatroomDTOS.stream().map(ChatroomDTO::getMembers).flatMap(memberDTOS -> memberDTOS.stream().map(MemberDTO::getMemberId)).collect(Collectors.toSet());
+        Map<String, User> memberDetailsMap = userService.getUserDetails(memberIds);
+
+        chatroomDTOS.forEach(chatroomDTO -> {
+            chatroomDTO.getMembers().forEach((memberDTO -> memberDTO.setMemberName(memberDetailsMap.get(memberDTO.getMemberId()).getName())));
+            chatroomDTO.setOwnerName(memberDetailsMap.get(chatroomDTO.getOwnerId()).getName());
+        });
+
+        return chatroomDTOS;
+    }
+
+    @Tool(description = "Get all chatrooms where the user is a member by user ID")
+    public List<ChatroomDTO> listChatroomsByUserId(String userId) {
+        List<Chatroom> chatrooms = chatroomRepository.findChatroomsByMembersMemberId(userId);
+        List<ChatroomDTO> chatroomDTOS = chatrooms.stream().map(chatroomMapper::toDto).toList();
+        Set<String> memberIds = chatroomDTOS.stream().map(ChatroomDTO::getMembers).flatMap(memberDTOS -> memberDTOS.stream().map(MemberDTO::getMemberId)).collect(Collectors.toSet());
+        Map<String, User> memberDetailsMap = userService.getUserDetails(memberIds);
+
+        chatroomDTOS.forEach(chatroomDTO -> {
+            chatroomDTO.getMembers().forEach((memberDTO -> memberDTO.setMemberName(memberDetailsMap.get(memberDTO.getMemberId()).getName())));
+            chatroomDTO.setOwnerName(memberDetailsMap.get(chatroomDTO.getOwnerId()).getName());
+        });
+
+        return chatroomDTOS;
+    }
+
+    @Tool(description = "Get chatroom metadata by chatroom ID")
+    public ChatroomDTO getChatroomMetaData(String chatroomId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Chatroom not found"));
         ChatroomDTO chatroomDTO = chatroomMapper.toDto(chatroom);
         Set<String> memberIds = chatroomDTO.getMembers().stream().map(MemberDTO::getMemberId).collect(Collectors.toSet());
@@ -147,6 +180,7 @@ public class ChatroomService {
             throw new AccessDeniedException("Not a member of this chatroom");
     }
 
+    @Tool(description = "Check if a user is member of a chatroom by chatroom ID and user ID")
     public void assertMember(String chatroomId, String userId) {
         if (!chatroomRepository.existsByChatroomIdAndMembersMemberId(chatroomId, userId))
             throw new AccessDeniedException("Not a member of this chatroom");
