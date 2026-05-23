@@ -1,0 +1,21 @@
+package com.cdev.wispchat.kafka.consumer;
+
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+import com.cdev.wispchat.ai.service.AIOrchestratorService;
+import com.cdev.wispchat.model.dto.EventDTO;
+
+@Service
+public class AiRequestConsumer {
+
+    AIOrchestratorService aiOrchestratorService;
+
+    AiRequestConsumer(AIOrchestratorService aiOrchestratorService) {
+        this.aiOrchestratorService = aiOrchestratorService;
+    }
+    
+    @KafkaListener(topics = "ai-requests", groupId = "wisp-chat-consumer-group", concurrency = "2")
+    public void consume(EventDTO event) {
+        aiOrchestratorService.processRequest(event);
+    }
+}
