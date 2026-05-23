@@ -1,0 +1,20 @@
+package com.cdev.wispchat.kafka.producer;
+
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import com.cdev.wispchat.model.dto.EventDTO;
+
+@Service
+public class AiRequestProducer {
+
+    private final KafkaTemplate<String, EventDTO> kafkaTemplate;
+
+    public AiRequestProducer(KafkaTemplate<String, EventDTO> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    public void sendMessage(EventDTO event) {
+        kafkaTemplate.send("ai-requests", event);
+    }
+}
